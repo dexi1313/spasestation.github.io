@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Космическая станция</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg1:#040815;--bg2:#0a1a3c;--acc:#5eead4;--acc2:#6366f1;--tx:#eef;--mut:#9aa3c7;--pn:rgba(255,255,255,.07)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--tx);background:linear-gradient(180deg,var(--bg2),var(--bg1)) fixed;padding:env(safe-area-inset-top,0) 12px env(safe-area-inset-bottom,0);display:flex;justify-content:center}
+#sky{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(1px 1px at 12% 20%,#fff,transparent),radial-gradient(1.5px 1.5px at 70% 35%,#fff,transparent),radial-gradient(1px 1px at 40% 70%,#fff,transparent),radial-gradient(1px 1px at 88% 82%,#fff,transparent),radial-gradient(1.5px 1.5px at 25% 90%,#fff,transparent);animation:tw 5s ease-in-out infinite alternate}
+@keyframes tw{to{opacity:.3}}
+#sky::after{content:'';position:absolute;top:12%;left:80%;width:90px;height:2px;background:linear-gradient(90deg,#fff,transparent);opacity:0;animation:ss 9s linear infinite}
+@keyframes ss{0%,88%{opacity:0;transform:translate(0,0) rotate(-35deg)}90%{opacity:1}100%{opacity:0;transform:translate(-320px,220px) rotate(-35deg)}}
+section{animation:fi .3s ease-out}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}}
+#mine svg{animation:bob 4s ease-in-out infinite}
+.wrap{width:100%;max-width:520px;padding-bottom:28px}
+h1{font-size:20px;margin:14px 0 2px;text-align:center}
+.era{text-align:center;color:var(--mut);font-size:13px}
+.tabs{display:flex;gap:6px;margin:12px 0}
+.tab{flex:1;font:inherit;font-size:13px;font-weight:600;padding:10px 4px;border-radius:12px;border:0;background:var(--pn);color:var(--mut)}
+.tab.on{color:#06101a;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.stats{text-align:center;background:var(--pn);border-radius:16px;padding:12px}
+.cr{font-size:34px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px}
+.cr svg{color:var(--acc)}
+.sub{color:var(--mut);font-size:13px;margin-top:3px}
+#mine{display:block;margin:20px auto 6px;width:210px;height:210px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;filter:drop-shadow(0 0 22px var(--acc2));transition:transform .08s}
+#mine.hit{transform:scale(.92)}
+.r1,.r2{transform-box:fill-box;transform-origin:center}
+.r1{animation:spin 30s linear infinite}.r2{animation:spin 18s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.eye{animation:pl 2.4s ease-in-out infinite}
+@keyframes pl{50%{opacity:.35}}
+.hint{text-align:center;color:var(--mut);font-size:13px}
+.fl{position:fixed;transform:translate(-50%,-50%);font-weight:800;font-size:20px;color:var(--acc);pointer-events:none;animation:up .8s ease-out forwards;z-index:30}
+@keyframes up{to{transform:translate(-50%,-110px);opacity:0}}
+.banner{display:none;margin:10px 0;text-align:center;padding:9px;border-radius:12px;font-weight:700;background:linear-gradient(90deg,var(--acc2),var(--acc));color:#06101a}
+h2{font-size:15px;color:var(--mut);margin:18px 0 8px;font-weight:600}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;background:var(--pn)}
+.row.lock{opacity:.4}
+.ic{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.08);color:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.inf{flex:1;min-width:0}.inf b{display:block;font-size:15px}.inf small{color:var(--mut);font-size:12px}
+.btn{font:inherit;font-weight:700;font-size:14px;border:0;border-radius:11px;padding:10px 13px;color:#06101a;background:linear-gradient(90deg,var(--acc),var(--acc2));white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;cursor:pointer}
+.btn:disabled{background:rgba(255,255,255,.12);color:var(--mut);cursor:default}
+.hide{display:none!important}
+.stage{position:relative;height:300px;border-radius:20px;overflow:hidden;background:radial-gradient(circle,var(--bg2),var(--bg1) 80%);border:1px solid rgba(255,255,255,.1)}
+.hub{position:absolute;left:50%;top:50%;width:120px;height:120px;margin:-60px;animation:bob 5s ease-in-out infinite;color:var(--acc)}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.orb{position:absolute;left:50%;top:50%;width:0;height:0;animation:spin 40s linear infinite}
+.orb span{position:absolute;display:block;width:32px;height:32px;margin:-16px;color:var(--acc)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{border-radius:16px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,.12);display:flex;flex-direction:column;align-items:center;gap:8px}
+.card .btn{width:100%}
+.sw{width:54px;height:54px;border-radius:50%}
+#nova{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:50;pointer-events:none;overflow:hidden}
+#nova.go{display:flex}
+#nova i{position:absolute;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#fff,var(--acc) 40%,transparent 70%);animation:nv 1.6s ease-out forwards}
+@keyframes nv{to{transform:scale(90);opacity:0}}
+#nova b{position:relative;font-size:26px;color:#06101a;text-align:center;animation:fd 1.6s forwards}
+@keyframes fd{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+h1{font-size:24px;background:linear-gradient(90deg,var(--acc),var(--acc2),#ffd23f);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stats{border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:14px;backdrop-filter:blur(6px)}
+.cr{font-size:40px;color:#ffd23f;text-shadow:0 0 18px rgba(255,210,63,.55)}
+#pps{color:#7dff6b;font-weight:700;font-size:15px}
+.tab{border:1px solid rgba(255,255,255,.16);border-radius:14px}
+.tab.on{border-color:transparent;box-shadow:0 0 16px var(--acc2)}
+h2{color:var(--acc);font-size:17px;text-shadow:0 0 10px var(--acc2)}
+.row{border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px}
+.ic{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 0 14px var(--acc2)}
+.ic span{font-size:28px!important}
+.btn{border-radius:14px;box-shadow:0 0 14px var(--acc2)}
+.btn:disabled{box-shadow:none}
+#novabtn{background:linear-gradient(90deg,#7a2cff,#ff4fd8,#ff8a3d);color:#fff;font-size:17px;box-shadow:0 0 22px rgba(255,79,216,.6)}
+#novabtn:disabled{background:rgba(255,255,255,.12);color:var(--mut);box-shadow:none}
+.stage{border-radius:24px;box-shadow:0 0 36px var(--acc2)}
+.card{border-radius:18px}
+.sw{box-shadow:0 0 16px var(--acc2)}
+.banner{box-shadow:0 0 22px var(--acc2)}
+#mine{filter:drop-shadow(0 0 26px var(--acc2))}
+.ic svg{width:30px;height:30px;color:#fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+.cr svg{color:#ffd23f}
+#starico svg{color:var(--acc)}
+.tab svg{vertical-align:-2px}
+#mine circle[fill="#2f2826"]{fill:var(--a2)}
+.hub,.orb{z-index:1}
+.stage::before{content:'';position:absolute;right:-40px;top:-30px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--p1),var(--p2))}
+.stage::after{content:'';position:absolute;right:-80px;top:17px;width:230px;height:56px;border:5px solid var(--acc);border-radius:50%;transform:rotate(-20deg);opacity:var(--ring)}
+#gc{position:fixed;left:-70px;top:30%;width:56px;height:56px;z-index:40;color:#ffd23f;display:none;filter:drop-shadow(0 0 12px #ffd23f);animation:gcm 7s linear forwards}
+#gc svg{width:56px;height:56px}
+@keyframes gcm{to{transform:translateX(calc(100vw + 140px))}}
+#mine{width:210px;height:210px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--acc) 0,var(--acc2) 55%,var(--bg1) 100%);box-shadow:0 0 0 6px rgba(255,255,255,.18),0 0 46px var(--acc2);filter:none;animation:halo 2.4s ease-in-out infinite}
+#mine svg{width:88%;height:88%}
+@keyframes halo{50%{box-shadow:0 0 0 18px rgba(255,255,255,0),0 0 64px var(--acc)}}
+.ic{background:linear-gradient(135deg,var(--c1,var(--acc)),var(--c2,var(--acc2)));box-shadow:0 0 14px var(--c1,var(--acc2))}
+.row .btn{background:linear-gradient(90deg,var(--c1,var(--acc)),var(--c2,var(--acc2)));box-shadow:0 0 12px var(--c1,var(--acc2))}
+.row .btn:disabled{background:rgba(255,255,255,.12);box-shadow:none}
+.stats{background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.05))}
+#sky::before{content:'';position:absolute;inset:0;background:var(--fx);animation:tw 7s ease-in-out infinite alternate}
+</style></head><body>
+<div id="sky"></div>
+<div id="gc"></div>
+<div id="nova"><i></i><b id="novat"></b></div>
+<div class="wrap">
+<h1>Космическая станция</h1><div class="era" id="era"></div>
+<nav class="tabs"><button class="tab on" data-a="tab" data-i="play">Добыча</button><button class="tab" data-a="tab" data-i="st">Станция</button><button class="tab" data-a="tab" data-i="star">Ядра</button><button class="tab" data-a="tab" data-i="shop">⭐ Магазин</button></nav>
+<div class="banner" id="ban">Метеоритный дождь · доход ×3</div>
+<div id="daily"></div>
+<section id="s-play">
+<div class="stats"><div class="cr"><span id="crico"></span><span id="crv">0</span></div><div class="sub" id="pps"></div></div>
+<button id="mine" aria-label="Астероид"><svg viewBox="0 0 200 200" width="210" height="210"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--acc)"/><stop offset="1" style="stop-color:var(--acc2)"/></linearGradient></defs><g class="r1"><circle cx="100" cy="100" r="94" fill="none" stroke="var(--acc)" stroke-width="3" opacity=".95"/></g><g class="r2"><circle cx="100" cy="100" r="80" fill="none" stroke="var(--acc2)" stroke-width="1.5" opacity=".5"/></g><defs><radialGradient id="ag" cx=".35" cy=".3" r=".8"><stop offset="0" style="stop-color:var(--a1)"/><stop offset="1" style="stop-color:var(--a2)"/></radialGradient></defs><path d="M62 56L98 38L136 50L156 86L148 126L120 154L80 158L50 134L42 90Z" fill="url(#ag)" stroke="var(--acc)" stroke-width="2.5" stroke-linejoin="round"/><circle cx="84" cy="84" r="13" fill="#2f2826" opacity=".7"/><circle cx="124" cy="78" r="8" fill="#2f2826" opacity=".7"/><circle cx="112" cy="122" r="16" fill="#2f2826" opacity=".7"/><circle cx="76" cy="126" r="7" fill="#2f2826" opacity=".7"/><circle cx="138" cy="112" r="5" fill="#2f2826" opacity=".7"/></svg></button>
+<div class="hint" id="hint"></div>
+<h2>Модули</h2><div class="list" id="shop"></div>
+</section>
+<section id="s-st" class="hide">
+<div class="stage" id="stage"></div><div class="sub" id="stinfo" style="text-align:center;margin-top:8px"></div>
+<h2>Облики</h2><div class="grid" id="themes"></div>
+</section>
+<section id="s-star" class="hide">
+<div class="stats"><div class="cr"><span id="starico"></span><span id="starv">0</span></div><div class="sub" id="novainfo"></div></div>
+<button class="btn" id="novabtn" data-a="nova" style="width:100%;margin-top:10px;padding:14px">Сверхновая</button>
+<h2>Магазин ядер</h2><div class="list" id="ups"></div><h2>Цели</h2><div class="list" id="goals"></div></section><section id="s-shop" class="hide"><h2>Покупки за Telegram Stars</h2><div class="list" id="prods"></div><div class="sub" id="shopmsg" style="text-align:center;margin-top:10px"></div>
+</section>
+</div>
+<script>
+const I={
+solar:'<rect x="3" y="8" width="18" height="8" rx="1"/><path d="M9 8v8M15 8v8M12 16v4M8 20h8"/>',
+drone:'<circle cx="12" cy="12" r="3"/><path d="M6 6l4 4M18 6l-4 4M6 18l4-4M18 18l-4-4"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/>',
+lab:'<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3M8 15h8"/>',
+port:'<ellipse cx="12" cy="14" rx="9" ry="4"/><path d="M7 12a5 5 0 0 1 10 0M8 18l-2 3M16 18l2 3"/>',
+core:'<circle cx="12" cy="12" r="2"/><ellipse cx="12" cy="12" rx="9" ry="4"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(120 12 12)"/>',
+gate:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>',
+coin:'<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 10h4a2 2 0 0 1 0 4h-4"/>',
+star:'<path d="M12 3l2.6 6 6.4.6-4.8 4.3 1.4 6.3L12 17l-5.6 3.2 1.4-6.3L3 9.6 9.4 9z"/>'};
+Object.assign(I,{
+solar:'<path d="M4 8h16l-2 9H6z"/><path d="M9.5 8l-.8 9M14.5 8l.8 9M5 12.5h14M12 17v3M8 20h8"/>',
+drone:'<circle cx="12" cy="12" r="3.2"/><path d="M6.5 6.5l3.3 3.3M17.5 6.5l-3.3 3.3M6.5 17.5l3.3-3.3M17.5 17.5l-3.3-3.3"/><circle cx="5.5" cy="5.5" r="2.3"/><circle cx="18.5" cy="5.5" r="2.3"/><circle cx="5.5" cy="18.5" r="2.3"/><circle cx="18.5" cy="18.5" r="2.3"/>',
+lab:'<path d="M9 3h6M10 3v6l-5 9.2A2 2 0 0 0 6.8 21h10.4a2 2 0 0 0 1.8-2.8L14 9V3"/><path d="M7.5 15h9"/>',
+port:'<ellipse cx="12" cy="14" rx="9" ry="4"/><path d="M7 12.3a5 5 0 0 1 10 0M8 18l-2 3M16 18l2 3M12 18.2V21"/>',
+core:'<circle cx="12" cy="12" r="1.8"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/>',
+gate:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>',
+coin:'<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.8h3.6a1.8 1.8 0 0 1 0 3.6H9.5"/>',
+star:'<path d="M12 3c.6 4.5 2.5 6.4 7 7-4.5.6-6.4 2.5-7 7-.6-4.5-2.5-6.4-7-7 4.5-.6 6.4-2.5 7-7z"/>',
+tg:'<path d="M12 3l2.7 5.9 6.3.8-4.6 4.4 1.2 6.4L12 17.3 6.4 20.5l1.2-6.4L3 9.7l6.3-.8z"/>',
+comet:'<circle cx="16" cy="8" r="4"/><path d="M13 11L4 20M11 7L3 11M17 13l-4 8"/>'});
+const ic=(k,s=24)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${I[k]}</svg>`;
+const DEFS=[
+{id:'solar',k:'solar',name:'Солнечные панели',desc:'Базовая энергия',base:15,prod:1},
+{id:'drill',k:'drone',name:'Дроны-сборщики',desc:'+0.25 к касанию',base:100,prod:6},
+{id:'lab',k:'lab',name:'Лаборатория',desc:'Исследования',base:600,prod:30},
+{id:'port',k:'port',name:'Торговый порт',desc:'Торговля с колониями',base:4000,prod:170},
+{id:'core',k:'core',name:'Реактор',desc:'Энергия звёзд',base:30000,prod:1000},
+{id:'gate',k:'gate',name:'Врата',desc:'Другие секторы',base:250000,prod:6500}];
+const THEMES=[
+{id:'void',name:'Бездна',bg1:'#040815',bg2:'#0a1a3c',acc:'#5eead4',acc2:'#6366f1',price:0},
+{id:'ember',name:'Угли',bg1:'#190907',bg2:'#3d1409',acc:'#ff9a3c',acc2:'#ef4444',price:20000},
+{id:'jade',name:'Нефрит',bg1:'#04140f',bg2:'#0c3b2d',acc:'#4ade80',acc2:'#14b8a6',price:400000},
+{id:'rose',name:'Рассвет',bg1:'#1f0a1f',bg2:'#4a1650',acc:'#f472b6',acc2:'#fb923c',price:8e6},
+{id:'frost',name:'Иней',bg1:'#07131f',bg2:'#12395a',acc:'#7dd3fc',acc2:'#a5b4fc',price:1.5e8},
+{id:'gold',name:'Золото',bg1:'#141004',bg2:'#3b2a06',acc:'#fcd34d',acc2:'#f59e0b',price:3e9},
+{id:'aurora',name:'Аврора',bg1:'#06101a',bg2:'#0b3340',acc:'#5ef0c8',acc2:'#c084fc',price:1e18,vip:1}];
+const UPS=[
+{id:'click',k:'drone',name:'Резонанс',desc:'+30% к касанию',max:10,cost:l=>l+1},
+{id:'off',k:'lab',name:'Архив',desc:'+10% дохода в офлайне',max:4,cost:l=>2*(l+1)},
+{id:'start',k:'port',name:'Запас',desc:'Стартовые кредиты после сверхновой',max:3,cost:l=>3*(l+1)}];
+const SKIN={
+void:{name:'Орбита',acc:'#22e4ff',acc2:'#7c5cff',st:0,a1:'#b9c4d4',a2:'#4a5568',p1:'#3b82f6',p2:'#0c2a6b',ring:0},
+ember:{name:'Красный карлик',bg1:'#1a0806',bg2:'#42110a',acc:'#ff8a4c',acc2:'#e5383b',st:1,a1:'#c98a6a',a2:'#5a2a1e',p1:'#ff7a45',p2:'#a01a1a',ring:0},
+jade:{name:'Туманность Ориона',bg1:'#120824',bg2:'#34145c',acc:'#f472b6',acc2:'#a78bfa',st:2,a1:'#c9a7e8',a2:'#4a2a6e',p1:'#e879f9',p2:'#6d28d9',ring:0},
+rose:{name:'Сатурн',bg1:'#18110a',bg2:'#3d2c10',acc:'#fbbf24',acc2:'#f97316',st:0,a1:'#e8cf9c',a2:'#6b5530',p1:'#f6d98a',p2:'#b07a2c',ring:.85},
+frost:{name:'Ледяная Европа',bg1:'#06121e',bg2:'#10395c',acc:'#7dd3fc',acc2:'#818cf8',st:1,a1:'#e0f2fe',a2:'#5b7fa6',p1:'#bae6fd',p2:'#3b82a8',ring:0},
+gold:{name:'Чёрная дыра',bg1:'#07040f',bg2:'#1b0f33',acc:'#ff9f43',acc2:'#a855f7',st:2,a1:'#6b5b8a',a2:'#17102a',p1:'#000',p2:'#2a1347',ring:.9},
+aurora:{bg1:'#041420',bg2:'#0a3a3f',acc:'#5ef0c8',acc2:'#c084fc',st:0,a1:'#9ff0dc',a2:'#2e5a63',p1:'#5ef0c8',p2:'#7c3aed',ring:.7}};
+THEMES.forEach(t=>Object.assign(t,SKIN[t.id]));
+const STN=[
+'<rect x="4" y="50" width="30" height="20" rx="3"/><rect x="86" y="50" width="30" height="20" rx="3"/><path d="M34 60h14M72 60h14M19 50v20M101 50v20M60 38V22"/><circle cx="60" cy="19" r="3"/><circle cx="60" cy="60" r="22" fill="var(--bg1)" fill-opacity="1"/><circle cx="60" cy="60" r="9"/>',
+'<circle cx="60" cy="60" r="44"/><circle cx="60" cy="60" r="34" fill="var(--bg1)" fill-opacity="1"/><path d="M60 46V26M60 74v20M46 60H26M74 60h20"/><circle cx="60" cy="60" r="14"/><circle cx="60" cy="60" r="5"/>',
+'<path d="M60 6l12 28H48z"/><rect x="46" y="34" width="28" height="46" rx="4"/><path d="M46 50h28M46 66h28M46 80l-14 24M74 80l14 24M60 80v24"/><circle cx="60" cy="20" r="2.5"/>'];
+const th=()=>THEMES.find(x=>x.id===S.theme)||THEMES[0];
+const GOALS=[
+{id:'g1',t:'100 касаний',f:()=>S.clicks>=100,r:[1000,0]},
+{id:'g2',t:'1000 касаний',f:()=>S.clicks>=1000,r:[0,1]},
+{id:'g3',t:'Заработай 100K',f:()=>S.life>=1e5,r:[20000,0]},
+{id:'g4',t:'Купи 25 модулей',f:()=>DEFS.reduce((s,d)=>s+S.owned[d.id],0)>=25,r:[0,1]},
+{id:'g5',t:'Первая сверхновая',f:()=>S.era>=2,r:[0,2]},
+{id:'g6',t:'Открой 3 облика',f:()=>Object.keys(S.themes).length>=3,r:[0,2]},
+{id:'g7',t:'Заработай 1B',f:()=>S.life>=1e9,r:[0,3]}];
+const CL={solar:['#ffd23f','#ff8a3d'],drill:['#22e4ff','#3d7bff'],lab:['#7dff6b','#16c172'],port:['#ff4fd8','#8a2cff'],core:['#ff8a3d','#ff2e63'],gate:['#fff36b','#ff4fd8']};
+const PERK={
+void:{perk:'Базовая станция',gl:'+',fx:'none'},
+ember:{perk:'+5% к доходу',inc:.05,gl:'✺ +',pt:.8,wv:'sawtooth',fx:'radial-gradient(circle at 85% 10%,rgba(255,90,40,.35),transparent 45%)'},
+jade:{perk:'+10% к касанию',clk:.1,gl:'✦ +',pt:1.3,wv:'sine',fx:'radial-gradient(circle at 20% 25%,rgba(244,114,182,.28),transparent 40%),radial-gradient(circle at 80% 70%,rgba(167,139,250,.28),transparent 45%)'},
+rose:{perk:'+10% дохода в офлайне',off:.1,gl:'◉ +',pt:.9,wv:'triangle',fx:'radial-gradient(circle at 50% 100%,rgba(251,191,36,.25),transparent 50%)'},
+frost:{perk:'Модули дешевле на 3%',cost:.03,gl:'❄ +',pt:1.6,wv:'sine',fx:'radial-gradient(circle at 15% 15%,rgba(125,211,252,.3),transparent 45%)'},
+gold:{perk:'+5% шанс крита',crit:.05,gl:'◐ +',pt:.6,wv:'square',fx:'radial-gradient(circle at 50% 45%,transparent 25%,rgba(168,85,247,.28) 55%,transparent 70%)'},
+aurora:{perk:'Комета прилетает чаще',comet:1,gl:'✧ +',pt:1.2,wv:'triangle',fx:'linear-gradient(180deg,rgba(94,240,200,.25),transparent 40%),radial-gradient(circle at 70% 20%,rgba(192,132,252,.25),transparent 40%)'}};
+THEMES.forEach(t=>Object.assign(t,PERK[t.id]));
+const RW=[[150,0],[1500,0],[5000,0],[8000,0],[0,1],[10000,0],[0,1]];
+GOALS.forEach((g,i)=>g.r=RW[i]);
+GOALS[6].f=()=>S.life>=1e10;GOALS[6].t='Заработай 10B';
+const GROWTH=1.35,LPC=1e8,OFFCAP=8*3600;
+let S={credits:0,life:0,owned:{},t:Date.now(),cores:0,spent:0,era:1,theme:'void',themes:{void:1},up:{click:0,off:0,start:0}};
+let cur='play',evUntil=0,nextEv=Date.now()+90000,last=Date.now(),AC=null;
+DEFS.forEach(d=>S.owned[d.id]=0);
+const $=id=>document.getElementById(id);
+const fmt=n=>{if(n<1000)return Math.floor(n).toString();const u=['K','M','B','T','Qa','Qi'];let i=-1;while(n>=1000&&i<5){n/=1000;i++}return n.toFixed(n<10?2:1)+u[i]};
+const tc=()=>S.cores+(S.paid||0),mult=()=>1+tc()*.1,ev=()=>(Date.now()<evUntil?3:1)*(Date.now()<(S.boostUntil||0)?2:1);
+const cost=d=>Math.ceil(d.base*Math.pow(GROWTH,S.owned[d.id])*(1-(th().cost||0)));
+const pps=()=>DEFS.reduce((s,d)=>s+S.owned[d.id]*d.prod,0)*mult()*ev()*.1*(1+(th().inc||0));
+const cv=()=>(1+S.owned.drill*.25)*mult()*ev()*(1+.3*S.up.click)*.4*(1+(th().clk||0));
+const earn=x=>{S.credits+=x;S.life+=x};
+const lk=i=>i>0&&S.life<DEFS[i-1].base*5;
+const memo={};
+function put(id,key,fn){if(memo[id]!==key){memo[id]=key;$(id).innerHTML=fn()}}
+
+function sfx(t){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const n=AC.currentTime,
+P={click:[660,1320,.07,'square',.04],buy:[520,1040,.2,'triangle',.1],ding:[1200,1500,.15,'sine',.08],nova:[120,1400,1.2,'sawtooth',.06]}[t],
+o=AC.createOscillator(),g=AC.createGain();const k=th().pt||1;o.type=t==='click'&&th().wv?th().wv:P[3];o.frequency.setValueAtTime(P[0]*k,n);o.frequency.exponentialRampToValueAtTime(P[1]*k,n+P[2]);
+g.gain.setValueAtTime(P[4],n);g.gain.exponentialRampToValueAtTime(.0001,n+P[2]);o.connect(g);g.connect(AC.destination);o.start(n);o.stop(n+P[2])}catch(e){}}
+
+function applyTheme(){const t=THEMES.find(x=>x.id===S.theme)||THEMES[0],r=document.documentElement.style;['bg1','bg2','acc','acc2','a1','a2','p1','p2','ring','fx'].forEach(k=>r.setProperty('--'+k,t[k]))}
+
+$('mine').addEventListener('pointerdown',e=>{
+const crit=Math.random()<.1+(th().crit||0),v=cv()*(crit?5:1);earn(v);S.clicks=(S.clicks||0)+1;sfx(crit?'buy':'click');const b=$('mine');b.classList.add('hit');setTimeout(()=>b.classList.remove('hit'),70);
+if(document.querySelectorAll('.fl').length<10){const p=document.createElement('div');p.className='fl';p.textContent=(crit?'КРИТ ':'')+(th().gl||'+')+fmt(v);if(crit)p.style.fontSize='30px';p.style.left=e.clientX+'px';p.style.top=e.clientY+'px';document.body.appendChild(p);setTimeout(()=>p.remove(),800)}
+$('crv').textContent=fmt(S.credits)});
+
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&!b.disabled)act(b.dataset.a,b.dataset.i)});
+
+function act(a,i){
+if(a==='tab'){cur=i;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.i===i));['play','st','star','shop'].forEach(k=>$('s-'+k).classList.toggle('hide',k!==i))}
+else if(a==='buy'){const d=DEFS.find(x=>x.id===i),c=cost(d);if(S.credits<c)return;S.credits-=c;S.owned[i]++;sfx('buy')}
+else if(a==='theme'){const t=THEMES.find(x=>x.id===i);if(!S.themes[i]){if(S.credits<t.price)return;S.credits-=t.price;S.themes[i]=1}S.theme=i;applyTheme();sfx('ding')}
+else if(a==='up'){const u=UPS.find(x=>x.id===i),l=S.up[i],c=u.cost(l);if(l>=u.max||tc()-S.spent<c)return;S.spent+=c;S.up[i]++;sfx('buy')}
+else if(a==='nova')return nova();
+else if(a==='pay')return pay(i);
+else if(a==='daily')daily();
+else if(a==='goal')goal(i);
+render()}
+
+function nova(){
+const pot=Math.floor(Math.sqrt(S.life/LPC)),gain=pot-S.cores;if(gain<1)return;
+if(!confirm('Сверхновая сбросит кредиты и модули, но даст +'+gain+' ядер. Продолжить?'))return;
+S.cores=pot;S.era++;S.credits=S.up.start?300*Math.pow(3,S.up.start-1):0;S.owned={};DEFS.forEach(d=>S.owned[d.id]=0);
+sfx('nova');$('novat').textContent='Сверхновая · +'+gain+' ядер';$('nova').className='go';setTimeout(()=>$('nova').className='',1700);render()}
+
+function render(){
+$('crv').textContent=fmt(S.credits);$('pps').textContent=fmt(pps())+' в секунду'+(Date.now()<(S.boostUntil||0)?' · ускорение ×2':'');
+$('era').textContent='Эпоха '+S.era+' · бонус ядер +'+tc()*10+'%';
+$('hint').textContent='Касание: +'+fmt(cv())+' · 10% шанс крита ×5';
+put('daily',S.day===tdy()?'-':(S.day===yest()?(S.streak||0)+1:1)+'',()=>{if(S.day===tdy())return '';const n=S.day===yest()?(S.streak||0)+1:1;return `<div class="row" style="margin-top:10px"><div class="ic">${ic('star')}</div><div class="inf"><b>Ежедневный бонус · день ${n}</b><small>${n%7===0?'Сегодня +1 ядро в подарок':'Заходи каждый день, награда растёт'}</small></div><button class="btn" data-a="daily">Забрать</button></div>`});
+document.querySelector('[data-i=star]').textContent='Ядра'+(GOALS.some(g=>g.f()&&!S.goals[g.id])?' •':'');
+$('ban').style.display=Date.now()<evUntil?'block':'none';
+if(cur==='shop')put('prods',Object.keys(S.themes)+(S.boostUntil>Date.now()?1:0),()=>PRODS.map(p=>{const own=p.id==='aurora'&&S.themes.aurora;return `<div class="row"><div class="ic">${ic(p.k)}</div><div class="inf"><b>${p.name}</b><small>${p.desc}</small></div><button class="btn" data-a="pay" data-i="${p.id}" ${own?'disabled':''}>${own?'Куплено':ic('tg',16)+p.stars}</button></div>`}).join(''));
+if(cur==='play')put('shop',DEFS.map((d,i)=>[S.owned[d.id],S.credits>=cost(d),lk(i)]).join('|')+S.cores,()=>DEFS.map((d,i)=>{const l=lk(i),c=cost(d);
+return `<div class="row ${l?'lock':''}" style="--c1:${CL[d.id][0]};--c2:${CL[d.id][1]}"><div class="ic">${ic(d.k)}</div><div class="inf"><b>${d.name} · ${S.owned[d.id]}</b><small>${l?'Закрыто':d.desc+' · +'+fmt(d.prod*mult()*.1)+'/с'}</small></div><button class="btn" data-a="buy" data-i="${d.id}" ${l||S.credits<c?'disabled':''}>${l?'—':ic('coin',16)+fmt(c)}</button></div>`}).join(''));
+if(cur==='st'){
+const list=[];DEFS.forEach(d=>{for(let i=0;i<Math.min(S.owned[d.id],2);i++)list.push(d.k)});
+put('stage',S.theme+list.join(),()=>`<svg class="hub" viewBox="0 0 120 120" fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${STN[th().st]}</svg><div class="orb">${list.map((k,i)=>`<span style="transform:rotate(${i*360/list.length}deg) translateX(${i%2?125:92}px)">${ic(k,32)}</span>`).join('')}</div>`);
+const tot=DEFS.reduce((s,d)=>s+S.owned[d.id],0);$('stinfo').textContent='Уровень станции '+(Math.floor(tot/5)+1)+' · модулей '+tot;
+put('themes',S.theme+Object.keys(S.themes)+THEMES.map(t=>S.credits>=t.price?1:0),()=>THEMES.map(t=>{const h=S.themes[t.id],q=S.theme===t.id;
+return `<div class="card" style="background:linear-gradient(160deg,${t.bg2},${t.bg1})"><div class="sw" style="background:linear-gradient(135deg,${t.acc},${t.acc2})"></div><b>${t.name}</b><small style="color:var(--mut)">${t.perk||''}</small><button class="btn" data-a="theme" data-i="${t.id}" ${q||(!h&&S.credits<t.price)?'disabled':''}>${q?'Выбрано':h?'Выбрать':t.vip?ic('tg',16)+' В магазине':ic('coin',16)+fmt(t.price)}</button></div>`}).join(''))}
+if(cur==='star'){
+put('goals',GOALS.map(g=>g.f()?(S.goals[g.id]?2:1):0).join(),()=>GOALS.map(g=>{const d=g.f(),c=S.goals[g.id];return `<div class="row ${c?'lock':''}"><div class="ic">${ic(c?'star':'comet')}</div><div class="inf"><b>${g.t}</b><small>Награда: ${g.r[0]?fmt(g.r[0])+' кр':''} ${g.r[1]?g.r[1]+' ядер':''}</small></div><button class="btn" data-a="goal" data-i="${g.id}" ${d&&!c?'':'disabled'}>${c?'Готово':d?'Забрать':'—'}</button></div>`}).join(''));
+const av=tc()-S.spent,gain=Math.floor(Math.sqrt(S.life/LPC))-S.cores;
+$('starv').textContent=av;
+$('novainfo').textContent=gain>=1?'Сверхновая даст +'+gain+' ядер (+'+gain*10+'% к доходу)':'Нужно '+fmt(Math.pow(S.cores+1,2)*LPC)+' за всё время, сейчас '+fmt(S.life);
+$('novabtn').disabled=gain<1;
+put('ups',UPS.map(u=>S.up[u.id]).join()+av,()=>UPS.map(u=>{const l=S.up[u.id],c=u.cost(l);
+return `<div class="row"><div class="ic">${ic(u.k)}</div><div class="inf"><b>${u.name} · ${l}/${u.max}</b><small>${u.desc}</small></div><button class="btn" data-a="up" data-i="${u.id}" ${l>=u.max||av<c?'disabled':''}>${l>=u.max?'Макс':ic('star',16)+c}</button></div>`}).join(''))}}
+
+const API=''; // адрес твоего сервера, например https://my-bot.onrender.com
+const PRODS=[
+{id:'c5',k:'star',name:'5 ядер',desc:'Бонус к доходу и покупки в магазине ядер',stars:25},
+{id:'c30',k:'star',name:'30 ядер',desc:'Выгодный пакет: на 20% больше',stars:120},
+{id:'x2',k:'core',name:'Ускорение ×2',desc:'Двойной доход на 3 часа',stars:30},
+{id:'aurora',k:'gate',name:'Облик «Аврора»',desc:'Эксклюзивная тема, больше нигде не купить',stars:60}];
+const say=t=>{$('shopmsg').textContent=t};
+function grant(id){
+if(id==='c5')S.paid=(S.paid||0)+5;
+else if(id==='c30')S.paid=(S.paid||0)+30;
+else if(id==='x2')S.boostUntil=Math.max(Date.now(),S.boostUntil||0)+3*3600*1000;
+else if(id==='aurora'){S.themes.aurora=1;S.theme='aurora';applyTheme()}
+sfx('nova');save();say('Спасибо! Покупка получена');render()}
+async function pay(id){
+const tg=window.Telegram&&Telegram.WebApp;
+if(!tg||!tg.initData||!API)return say('Оплата работает внутри Telegram после подключения сервера');
+try{const r=await fetch(API+'/invoice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item:id,initData:tg.initData})}),j=await r.json();
+tg.openInvoice(j.link,s=>{if(s==='paid')grant(id);else say('Оплата не завершена')})}catch(e){say('Нет связи с сервером')}}
+const tdy=()=>new Date().toDateString(),yest=()=>new Date(Date.now()-864e5).toDateString();
+const toast=t=>{const p=document.createElement('div');p.className='fl';p.textContent=t;p.style.left='50%';p.style.top='40%';document.body.appendChild(p);setTimeout(()=>p.remove(),800)};
+function daily(){if(S.day===tdy())return;S.streak=S.day===yest()?(S.streak||0)+1:1;S.day=tdy();const r=Math.max(150,pps()*600)*Math.min(S.streak,7),w=S.streak%7===0;earn(r);if(w)S.paid=(S.paid||0)+1;sfx('nova');toast('Бонус +'+fmt(r)+(w?' и 1 ядро':''))}
+function goal(id){const g=GOALS.find(x=>x.id===id);if(!g||S.goals[id]||!g.f())return;S.goals[id]=1;earn(g.r[0]);S.paid=(S.paid||0)+g.r[1];sfx('buy');toast('Цель! '+(g.r[0]?'+'+fmt(g.r[0]):'')+(g.r[1]?' +'+g.r[1]+' ядер':''))}
+let nextComet=Date.now()+30000;
+const gc=$('gc');
+function comet(){gc.innerHTML=ic('comet',56);gc.style.top=(15+Math.random()*50)+'%';gc.style.display='block';gc.style.animation='none';void gc.offsetWidth;gc.style.animation='';sfx('ding');setTimeout(()=>{gc.style.display='none'},7000)}
+gc.addEventListener('pointerdown',()=>{if(gc.style.display==='none')return;gc.style.display='none';const g=Math.max(60,pps()*90);earn(g);sfx('buy');toast('Комета! +'+fmt(g))});
+function save(){S.t=Date.now();try{localStorage.setItem('spaceStation',JSON.stringify(S))}catch(e){}}
+function load(){try{const raw=localStorage.getItem('spaceStation');if(!raw)return;const d=JSON.parse(raw);
+S=Object.assign(S,d);S.up=Object.assign({click:0,off:0,start:0},d.up||{});S.themes=Object.assign({void:1},d.themes||{});
+DEFS.forEach(x=>{if(S.owned[x.id]===undefined)S.owned[x.id]=0});
+const s=Math.min((Date.now()-S.t)/1000,OFFCAP);
+if(s>5){const g=pps()*s*(.5+.1*S.up.off+(th().off||0));if(g>0)earn(g)}}catch(e){}}
+
+$('crico').innerHTML=ic('coin',28);$('starico').innerHTML=ic('star',28);
+try{Telegram.WebApp.ready();Telegram.WebApp.expand()}catch(e){}
+load();S.goals=S.goals||{};applyTheme();document.querySelector('[data-i=shop]').innerHTML=ic('tg',15)+' Магазин';render();
+setInterval(()=>{const n=Date.now();earn(pps()*(n-last)/1000);last=n;
+if(n>nextEv){evUntil=n+15000;nextEv=n+120000+Math.random()*60000;sfx('ding')}
+if(n>nextComet&&cur==='play'){comet();nextComet=n+(45000+Math.random()*45000)*(th().comet?.65:1)}
+render()},300);
+setInterval(save,3000);addEventListener('beforeunload',save);
+</script></body></html>
